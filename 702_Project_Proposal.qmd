@@ -1,0 +1,711 @@
+---
+title: "IDS 702 Project Proposal"
+author: "Yihan Chen, Ciera Simon, Yihan Wang"
+format: pdf
+editor: visual
+execute:
+  echo: FALSE
+  message: FALSE
+  warning: FALSE
+---
+
+## Project Proposal/Statistical Analysis Plan
+
+Link to your team's Github Repo: <https://github.com/yihanc09/IDS-702-Final-Project>
+
+### Dataset Option 1
+
+------------------------------------------------------------------------
+
+Project Title: Where, When, & Why We Crash: Exploring Factors Associated with Severe Traffic Crashes in North Carolina (2016–2025)
+
+Data citation: North Carolina Department of Transportation. (2026). NC FatalAndSeriousInjuryCrashes \[Data set\]. ArcGIS Online. https://ncdot.maps.arcgis.com/home/item.html?id=967bdaaadb4a4c1eb3e3d4e849b43719
+
+Original data collection date: September 22, 2025 (initial publication); last updated March 31, 2026. The dataset covers fatal and serious-injury crashes occurring from January 2016 through December 2025.
+
+Data pull date: November 4, 2026.
+
+------------------------------------------------------------------------
+
+#### 1 Research Question
+
+Which crash characteristics are associated with higher odds of a fatal outcome among fatal and serious-injury traffic crashes in North Carolina (2016–2025), and how do these associations vary across environmental and temporal conditions?
+
+-   or put it more specifically: To what extent are alcohol involvement, speeding, and lighting conditions associated with the odds of a fatal outcome among severe traffic crashes in North Carolina (2016–2025), and does the association between alcohol involvement and fatal severity differ between daytime and nighttime crashes?
+
+Backup RQ: Among fatal and serious-injury traffic crashes in North Carolina from 2016 to 2025, how is alcohol involvement associated with the likelihood of a fatal outcome, and does this association differ between daytime and nighttime conditions after accounting for speeding, weather, road conditions, and other crash characteristics?
+
+#### 2 Study Population
+
+The study population consists of fatal and serious-injury traffic crashes reported in North Carolina between 2016 and 2025. Each observation represents an individual crash rather than an individual driver or vehicle. The dataset contains 53,917 crash records collected by law enforcement agencies and maintained by the North Carolina Department of Transportation (NCDOT). Information was documented through official traffic crash reports, including crash severity, date, location, weather, lighting conditions, road conditions, and contributing factors such as alcohol involvement and speeding. The dataset was obtained from NCDOT's ArcGIS Online portal and converted from Shapefile format to CSV for analysis.
+
+Because the dataset includes only fatal and serious-injury crashes, our findings will apply to the characteristics associated with fatal outcomes among these severe crashes, rather than to all traffic accidents in North Carolina.
+
+#### 3 Outcomes, Exposures, and Additional Variables of Interest
+
+3.1 Primary Outcome(s)
+
+| Variable Name | Description                                                                              | Coding specification                                                                                    |
+|------------------------|------------------------|------------------------|
+| `Crash_Seve`  | Severity of the traffic crash, distinguishing fatal crashes from serious-injury crashes. | `K` = Fatal crash (1); `A` = Serious-injury crash (0). Binary variable recoded for logistic regression. |
+
+3.2 Primary Independent Variable(s)
+
+| Variable Name | Description                                                                                                                         | Coding specification                                                                                                                                                                                                                        |
+|------------------------|------------------------|------------------------|
+| `Alcohol_Re`  | Indicates whether the crash was classified as alcohol-related.                                                                      | `Y` = Yes (1); `N` = No (0).                                                                                                                                                                                                                |
+| `Speed_Rela`  | Indicates whether the crash was classified as speed-related.                                                                        | `Y` = Yes (1); `N` = No (0).                                                                                                                                                                                                                |
+| `Light_Cond`  | Lighting conditions at the time of the crash, potentially modifying the association between alcohol involvement and fatal severity. | Original categories include `Daylight`, `Dark - Roadway Not Lighted`, `Dark - Lighted Roadway`, `Dusk`, `Dawn`, `Dark - Unknown Lighting`, `Unknown`, and `Other`. Can be grouped into daylight vs. nighttime for the interaction analysis. |
+
+3.3 Additional Variables of Interest (including potential confounders)
+
+| Variable Name | Description                                                                    | Coding specification                                                                                                                       |
+|------------------------|------------------------|------------------------|
+| `Weather`     | Weather conditions at the time of the crash.                                   | Categorical: `Clear`, `Cloudy`, `Rain`, `Fog - Smog - Smoke`, `Snow - Sleet - Hail - Freezing Rain/drizzle`, `Other`, `Severe Crosswinds`. |
+| `Road_Condi`  | Road surface conditions at the crash location.                                 | Categorical: `Dry`, `Wet`, `Ice`, `Snow`, `Slush`, `Water (Standing - Moving)`, `Sand - Mud - Dirt - Gravel`, `Unknown`, `Other`.          |
+| `Num_Vehicl`  | Number of motor vehicles involved in the crash.                                | Numeric integer; observed range: 1–14.                                                                                                     |
+| `Motorcycle`  | Indicates whether a motorcycle was involved in the crash.                      | `Y` = Yes (1); `N` = No (0).                                                                                                               |
+| `Crash_Type`  | Type of collision or crash event.                                              | Categorical: `Fixed Object`, `Head On`, `Angle`, `Pedestrian`, `Overturn/Rollover`, etc.                                                   |
+| `Date`        | Date when the crash occurred. Used to derive year and examine temporal trends. | Date in MM/DD/YYYY format (CSV includes a trailing period); year can be extracted as a numeric or categorical variable (2016–2025).        |
+| `Day_of_Wee`  | Day of the week when the crash occurred.                                       | Categorical; verify the stored labels before recoding into weekday/weekend.                                                                |
+| `County_Nam`  | North Carolina county where the crash occurred.                                | Categorical county names, e.g., `Wake`, `Durham`, `Mecklenburg`.                                                                           |
+
+#### 4 Statistical Analysis Plan
+
+4.1 Exploratory Data Analysis
+
+We will begin by examining the overall structure of the dataset, including the number of observations, variable distributions, and missing values. Since our primary outcome, crash severity, is binary (fatal vs. serious injury), we will use frequency tables and bar charts to summarize the distribution of crash severity.
+
+Next, we will explore the relationships between crash severity and our primary independent variables, including alcohol involvement, speeding, and lighting conditions. We will generate proportional stacked bar charts to compare the percentage of fatal versus serious-injury crashes across different categories of these variables.
+
+To investigate potential interaction effects, we will create grouped bar charts comparing the proportion of fatal crashes by alcohol involvement under different lighting conditions (daytime vs. nighttime). We will also examine how crash severity varies across years and counties using line charts and bar charts.
+
+Finally, we will summarize additional variables, such as weather, road conditions, and the number of vehicles involved, using frequency tables, bar charts, and histograms as appropriate. These exploratory analyses will help us identify patterns, assess potential confounding factors, and inform our subsequent statistical modeling.
+
+4.2 Statistical Model (write in mathematical notation and define each term)
+
+We will use logistic regression to examine the association between crash characteristics and the likelihood of a fatal outcome among fatal and serious-injury traffic crashes in North Carolina.
+
+The proposed model is:
+
+$$
+\log\left(\frac{p_i}{1-p_i}\right)=\beta_0+\beta_1X_{1i}+\beta_2X_{2i}+\beta_3X_{3i}+\beta_4X_{4i}+\beta_5X_{5i}+\beta_6(X_{1i}\times X_{3i})
+$$
+
+where:
+
+-   $p_i=P(Y_i=1)$ is the probability that crash (i) is fatal, conditional on the predictors and inclusion in the fatal-or-serious-injury sample.
+
+-   $Y_i$ is the outcome variable (1 = fatal crash, 0 = serious-injury crash).
+
+-   $X_{1i} =$ alcohol involvement (1 = yes, 0 = no).
+
+-   $X_{2i}$ = speeding involvement (1 = yes, 0 = no).
+
+-   $X_{3i}$ = nighttime crash (1 = nighttime, 0 = daytime).
+
+-   $X_{4i}$ = motorcycle involvement (1 = yes, 0 = no).
+
+-   $X_{5i}$ = number of vehicles involved.
+
+-   $X_{1i}\times X_{3i}$ is the interaction term between alcohol involvement and nighttime conditions.
+
+-   $\beta_0$ is the intercept.
+
+-   $\beta_1,\ldots,\beta_6$ are the regression coefficients.
+
+4.2 Rationale for the statistical model (why are you choosing to use this type of model? What about your data structure/characteristics are you accommodating with this model type?)
+
+We chose logistic regression because our outcome variable, crash severity, is binary (1 = fatal crash, 0 = serious-injury crash). Unlike linear regression, logistic regression is appropriate for modeling the probability of a binary outcome and ensures that predicted probabilities fall between 0 and 1.
+
+Our model includes both categorical predictors (e.g., alcohol involvement, speeding, nighttime conditions, and motorcycle involvement) and a numerical predictor (number of vehicles involved). Logistic regression allows us to examine the associations between these variables and the odds of a fatal outcome while controlling for other crash characteristics.
+
+Additionally, we include an interaction term between alcohol involvement and nighttime conditions to investigate whether the association between alcohol involvement and fatal crash severity differs between daytime and nighttime crashes. The model also allows us to interpret the results using odds ratios, confidence intervals, and p-values.
+
+4.3 Model Assumptions
+
+Our logistic regression model relies on the following assumptions:
+
+1.  **Binary outcome:** The dependent variable has two categories: fatal crash (1) and serious-injury crash (0).
+
+2.  **Independence of observations:** Each observation represents a separate crash, and we assume that crash outcomes are independent of one another.
+
+3.  **Linearity in the log-odds:** Continuous predictors, such as the number of vehicles involved, are assumed to have a linear relationship with the log-odds of a fatal outcome.
+
+4.  **No severe multicollinearity:** The independent variables should not be highly correlated with one another, as this could affect the stability of coefficient estimates.
+
+5.  **Sufficient sample size:** There should be enough observations in each outcome and predictor category to estimate the regression coefficients reliably, including the interaction term.
+
+4.4 Model Assessment (how will you assess the assumptions and model performance?)
+
+1.  **Independence:** We will examine whether crashes are clustered by county or year, which may affect the independence assumption.
+
+2.  **Linearity in the log-odds:** We will examine whether the number of vehicles involved has an approximately linear relationship with the log-odds of a fatal outcome.
+
+3.  **Multicollinearity:** We will calculate variance inflation factors (VIFs) to check for high correlations among predictors, including the interaction term.
+
+4.  **Model Fit:** We will examine residuals and influential observations to identify potential problems with model fit. We will also compare models with and without the interaction term using a likelihood ratio test.
+
+5.  **Statistical Significance:** We will examine the estimated coefficients, p-values, and 95% confidence intervals to determine which crash characteristics are significantly associated with fatal outcomes.
+
+6.  **Model Performance:** We will compare predicted probabilities with observed crash outcomes and evaluate the model's classification accuracy using a confusion matrix.
+
+\newpage
+
+#### Exploratory Data Analysis
+
+```{r, message=FALSE, warning=FALSE}
+library(readr)
+library(tidyverse)
+
+url <- "https://raw.githubusercontent.com/yihanc09/IDS-702-Final-Project/refs/heads/main/data/nc_crashes.csv"
+
+crashes <- read_csv(url)
+
+
+cat("Rows:", nrow(crashes), "\n")
+cat("Columns:", ncol(crashes), "\n\n")
+
+crashes %>%
+  dplyr::select(
+    Crash_Seve,
+    Alcohol_Re,
+    Speed_Rela,
+    Light_Cond,
+    Weather,
+    Road_Condi,
+    Num_Vehicl,
+    Motorcycle
+  ) %>%
+  dplyr::glimpse(width = 70)
+
+```
+
+The dataset contains 53,917 fatal and serious-injury traffic crashes reported in North Carolina between 2016 and 2025, with 32 variables describing crash severity, location, timing, environmental conditions, and contributing factors. Each observation represents an individual crash. We first examined the structure and variable types using `glimpse()`.
+
+```{r, message=FALSE, warning=FALSE}
+table1 <- crashes |>
+  summarise(
+    `Total crashes` = n(),
+    `Fatal crashes, n (%)` = paste0(
+      sum(Crash_Seve == "K"), " (",
+      round(mean(Crash_Seve == "K") * 100, 1), "%)"
+    ),
+    `Serious-injury crashes, n (%)` = paste0(
+      sum(Crash_Seve == "A"), " (",
+      round(mean(Crash_Seve == "A") * 100, 1), "%)"
+    ),
+    `Alcohol-related crashes, n (%)` = paste0(
+      sum(Alcohol_Re == "Y"), " (",
+      round(mean(Alcohol_Re == "Y") * 100, 1), "%)"
+    ),
+    `Speed-related crashes, n (%)` = paste0(
+      sum(Speed_Rela == "Y"), " (",
+      round(mean(Speed_Rela == "Y") * 100, 1), "%)"
+    ),
+    `Motorcycle crashes, n (%)` = paste0(
+      sum(Motorcycle == "Y"), " (",
+      round(mean(Motorcycle == "Y") * 100, 1), "%)"
+    ),
+    `Number of vehicles, mean (SD)` = paste0(
+      round(mean(Num_Vehicl, na.rm = TRUE), 2),
+      " (",
+      round(sd(Num_Vehicl, na.rm = TRUE), 2), ")"
+    )
+  )
+
+knitr::kable(table1, caption = "Crash Characteristics")
+```
+
+```{r, fig.width=5, fig.height=2.5, out.width="70%",fig.align="center", warning=FALSE, message=FALSE}
+crashes |>
+  mutate(
+    severity = recode(
+      Crash_Seve,
+      "K" = "Fatal",
+      "A" = "Serious Injury"
+    )
+  ) |>
+  ggplot(aes(x = severity, fill = severity)) +
+  geom_bar() +
+  labs(
+    title = "Distribution of Severe Traffic Crashes",
+    subtitle = "North Carolina, 2016–2025",
+    x = "Crash Severity",
+    y = "Number of Crashes"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```
+
+Among the 53,917 severe traffic crashes recorded in North Carolina between 2016 and 2025, 14,846 (27.5%) were fatal crashes, while 39,071 (72.5%) resulted in serious injuries. Serious-injury crashes accounted for the majority of observations in the dataset.
+
+```{r, fig.width=5, fig.height=2.5, out.width="70%",fig.align="center", warning=FALSE, message=FALSE}
+crashes |>
+  mutate(
+    severity = recode(
+      Crash_Seve,
+      "K" = "Fatal",
+      "A" = "Serious Injury"
+    ),
+    alcohol = recode(
+      Alcohol_Re,
+      "Y" = "Alcohol-related",
+      "N" = "Not alcohol-related"
+    )
+  ) |>
+  ggplot(aes(x = alcohol, fill = severity)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(
+    title = "Crash Severity by Alcohol Involvement",
+    x = "Alcohol Involvement",
+    y = "Proportion of Crashes",
+    fill = "Crash Severity"
+  ) +
+  theme_minimal()
+```
+
+The proportion of fatal crashes was higher among alcohol-related crashes (approximately 36%) than among non-alcohol-related crashes (approximately 25%). This suggests a positive association between alcohol involvement and fatal crash severity among the severe crashes included in the dataset.
+
+```{r, fig.width=5, fig.height=2.5, out.width="70%",fig.align="center", warning=FALSE, message=FALSE}
+crashes_light <- crashes |>
+  mutate(
+    lighting = case_when(
+      Light_Cond == "Daylight" ~ "Daytime",
+      Light_Cond %in% c(
+        "Dark - Roadway Not Lighted",
+        "Dark - Lighted Roadway"
+      ) ~ "Nighttime",
+      TRUE ~ NA_character_
+    ),
+    alcohol = recode(
+      Alcohol_Re,
+      "Y" = "Alcohol-related",
+      "N" = "Not alcohol-related"
+    )
+  ) |>
+  filter(!is.na(lighting))
+
+crashes_light |>
+  group_by(lighting, alcohol) |>
+  summarise(
+    fatal_pct = mean(Crash_Seve == "K") * 100,
+    .groups = "drop"
+  ) |>
+  ggplot(aes(
+    x = lighting,
+    y = fatal_pct,
+    fill = alcohol
+  )) +
+  geom_col(position = "dodge") +
+  labs(
+    title = "Fatal Crash Proportion by Alcohol and Lighting",
+    x = "Lighting Conditions",
+    y = "Fatal Crashes (%)",
+    fill = "Alcohol Involvement"
+  ) +
+  theme_minimal()
+```
+
+The proportion of fatal crashes was higher for alcohol-related crashes under both daytime and nighttime conditions. Fatal crash proportions were also higher at night for both alcohol-related and non-alcohol-related crashes. The difference between alcohol-related and non-alcohol-related crashes appeared to vary slightly across lighting conditions, suggesting a potential interaction that warrants further investigation using logistic regression.
+
+**Summary:**
+
+Overall, the exploratory analysis suggests that alcohol involvement and nighttime conditions are associated with higher proportions of fatal outcomes among severe traffic crashes in North Carolina. Differences in fatal crash proportions across alcohol involvement and lighting conditions also motivate further investigation of a potential interaction effect. We will use logistic regression to assess these associations while accounting for other crash characteristics, including speeding, motorcycle involvement, and the number of vehicles involved.
+
+\newpage
+
+### Dataset Option 2
+
+------------------------------------------------------------------------
+
+Project Title: Behind the Screen: Exploring Factors Associated with Unauthorized Online Account Access Among U.S. Adults (2025)
+
+Data citation: Pew Research Center. (2025). *American Trends Panel Wave 168* \[Data set\]. Pew Research Center. <https://www.pewresearch.org/dataset/american-trends-panel-wave-168/>
+
+Original data collection date: April 14–20, 2025 (survey field period). The related Pew Research Center report, *Online Scams and Attacks in America Today*, was published on July 31, 2025.
+
+Data pull date (when did you download the data you will use?): November 4, 2026
+
+------------------------------------------------------------------------
+
+#### 1 Research Question
+
+Which demographic and online behavioral characteristics are associated with higher odds of experiencing unauthorized access to a personal online account among U.S. adults in 2025, and how do these associations vary across demographic groups?
+
+-   or put it more specifically: To what extent are age, educational attainment, and self-reported knowledge about avoiding online scams associated with the odds of having experienced unauthorized access to a personal online account among U.S. adults in 2025, and does the association between age and account compromise differ by educational attainment?
+
+Backup RQ: Among U.S. adults surveyed in 2025, how is self-reported knowledge about avoiding online scams associated with the odds of having experienced unauthorized access to a personal online account, and does this association differ across age groups after accounting for education, gender, and other demographic characteristics?
+
+#### 2 Study Population
+
+The study population consists of noninstitutionalized adults aged 18 and older living in the United States. Each observation represents an individual survey respondent rather than a household or an online scam incident. The dataset contains 9,397 responses from Wave 168 of Pew Research Center's American Trends Panel (ATP), collected between April 14 and April 20, 2025. The ATP is a nationally representative panel of U.S. adults recruited primarily through address-based probability sampling. Data were collected through online surveys (n = 9,136) and live telephone interviews (n = 261), conducted in English and Spanish. The survey includes questions about experiences with online scams and attacks, knowledge of scam prevention, online activities, and demographic characteristics such as age, gender, and educational attainment. The dataset was obtained from Pew Research Center and provided in CSV format for analysis.
+
+Because the data are based on self-reported experiences collected at a single survey wave, our findings will describe associations between respondent characteristics and reported experiences of unauthorized online account access rather than establish causal relationships. We will consider the survey weights provided by Pew Research Center to account for the sampling design and nonresponse when making inferences about U.S. adults. Furthermore, the primary outcome measures whether respondents have ever experienced unauthorized account access, rather than their risk of experiencing such an incident in the future.
+
+#### 3 Outcomes, Exposures, and Additional Variables of Interest
+
+3.1 Primary Outcome(s)
+
+| Variable Name            | Description                                                                                                                                                                   | Coding specification                                                                                                                                                                                                                                             |
+|------------------|----------------------|--------------------------------|
+| `OSCAM_TYPESELF2_a_W168` | Indicates whether a respondent has ever experienced unauthorized access to or takeover of a personal online account, such as a social media, email, bank, or payment account. | Original coding: `1` = Yes, in the past 12 months; `2` = Yes, more than 12 months ago; `3` = No, never; `99` = Don't know/Refused/Web blank. Recode as `1` = Ever experienced (original 1 or 2); `0` = Never experienced (original 3). Exclude 99 from analysis. |
+
+3.2 Primary Independent Variable(s)
+
+| Variable Name     | Description                                                                                                                                                                | Coding specification                                                                                                                                          |
+|------------------|----------------------------|--------------------------|
+| `F_AGECAT`        | Age category of the respondent, used to examine differences in account compromise experiences across age groups.                                                           | `1` = 18–29; `2` = 30–49; `3` = 50–64; `4` = 65+; `99` = Refused. Treat as categorical.                                                                       |
+| `F_EDUCCAT`       | Highest educational attainment category of the respondent. Also used to investigate whether the association between age and account compromise differs by education level. | `1` = College graduate or higher; `2` = Some college; `3` = High school graduate or less; `99` = Refused. Treat as categorical.                               |
+| `OSCAM_KNOW_W168` | Self-reported knowledge about how to avoid falling for online scams or attacks.                                                                                            | `1` = A great deal; `2` = A fair amount; `3` = Some; `4` = A little; `5` = Nothing at all; `99` = Don't know/Refused/Web blank. Ordinal categorical variable. |
+
+3.3 Additional Variables of Interest (including potential confounders)
+
+| Variable Name   | Description                                                                                                                                           | Coding specification                                                                                                                |
+|------------------|----------------------------|--------------------------|
+| `F_GENDER`      | Self-reported gender of the respondent, included to account for demographic differences.                                                              | `1` = A man; `2` = A woman; `3` = In some other way; `99` = Refused. Categorical variable.                                          |
+| `ONLTSK_a_W168` | Indicates whether the respondent buys things online, representing a type of online activity potentially associated with exposure to scams or attacks. | `1` = Yes; `2` = No; `99` = Don't know/Refused/Web blank. Recode as binary (1 = Yes, 0 = No).                                       |
+| `ONLTSK_b_W168` | Indicates whether the respondent uses online banking sites or applications, representing exposure to online financial services.                       | `1` = Yes; `2` = No; `99` = Don't know/Refused/Web blank. Recode as binary (1 = Yes, 0 = No).                                       |
+| `WEIGHT_W168`   | Survey weight provided by Pew Research Center to account for the sampling design and nonresponse when estimating population-level associations.       | Positive numeric survey weight. Used for weighted descriptive statistics and survey-weighted regression rather than as a predictor. |
+
+#### 4 Statistical Analysis Plan
+
+4.1 Exploratory Data Analysis
+
+We will begin by examining the overall structure of the dataset, including the number of observations, variable distributions, and missing values. Since our primary outcome, unauthorized online account access, is binary (ever experienced vs. never experienced), we will use frequency tables and bar charts to summarize the distribution of reported account compromise experiences.
+
+Next, we will explore the relationships between unauthorized account access and our primary independent variables, including age, educational attainment, and self-reported knowledge about avoiding online scams. We will generate proportional stacked bar charts to compare the percentage of respondents who have and have not experienced unauthorized account access across different categories of these variables.
+
+To investigate potential interaction effects, we will create grouped bar charts comparing the proportion of respondents who have experienced unauthorized account access across age groups and education levels. We will also examine whether reported experiences differ across levels of self-reported scam prevention knowledge.
+
+Finally, we will summarize additional variables, such as gender, online shopping, and online banking use, using frequency tables and bar charts as appropriate. Where appropriate, we will incorporate Pew Research Center's survey weights into descriptive summaries. These exploratory analyses will help us identify patterns, assess potential confounding factors, and inform our subsequent statistical modeling.
+
+4.2 Statistical Model (write in mathematical notation and define each term)
+
+We will use logistic regression to examine the association between demographic characteristics, online behaviors, and the likelihood of having experienced unauthorized access to a personal online account among U.S. adults.
+
+The proposed model is:
+
+$$
+\begin{aligned}
+\log\left(\frac{p_i}{1-p_i}\right)
+={}&\beta_0+\boldsymbol{\beta}_1^\top\mathbf{A}_i
++\boldsymbol{\beta}_2^\top\mathbf{E}_i\\
+&+\boldsymbol{\beta}_3^\top\mathbf{K}_i
++\boldsymbol{\beta}_4^\top\mathbf{G}_i\\
+&+\beta_5S_i+\beta_6B_i
++\mathbf{A}_i^\top\boldsymbol{\Gamma}\mathbf{E}_i
+\end{aligned}
+$$
+
+where:
+
+-   $p_i=P(Y_i=1\mid\mathbf{X}_i)$ is the probability that respondent $i$ has ever experienced unauthorized online account access, conditional on the predictors.
+
+-   $Y_i$ is the binary outcome variable (1 = ever experienced unauthorized account access, 0 = never experienced).
+
+-   $\mathbf{A}_i$ represents age-group indicator variables (18–29, 30–49, 50–64, and 65+), with ages 18–29 as the reference category.
+
+-   $\mathbf{E}_i$ represents educational attainment indicator variables (college graduate or higher, some college, and high school graduate or less), with college graduates or higher as the reference category.
+
+-   $\mathbf{K}_i$ represents categorical indicators for self-reported knowledge about avoiding online scams, ranging from a great deal to nothing at all.
+
+-   $\mathbf{G}_i$ represents gender categories.
+
+-   $S_i$ indicates online shopping activity (1 = yes, 0 = no).
+
+-   $B_i$ indicates online banking use (1 = yes, 0 = no).
+
+-   $\mathbf{A}_i^\top\boldsymbol{\Gamma}\mathbf{E}_i$ represents the interaction terms between age group and educational attainment.
+
+-   $\beta_0$ is the intercept.
+
+-   $\boldsymbol{\beta}_1,\ldots,\boldsymbol{\beta}_4$ are vectors of coefficients for the categorical predictors, while $\beta_5$ and $\beta_6$ are coefficients for the two binary online activity variables.
+
+-   $\boldsymbol{\Gamma}$ is the matrix of coefficients for the age-by-education interaction terms.
+
+4.2 Rationale for the statistical model (why are you choosing to use this type of model? What about your data structure/characteristics are you accommodating with this model type?)
+
+We chose logistic regression because our outcome variable, unauthorized online account access, is binary (1 = ever experienced, 0 = never experienced). Unlike linear regression, logistic regression is appropriate for modeling the probability of a binary outcome and ensures that predicted probabilities fall between 0 and 1.
+
+Our model includes categorical predictors, such as age group, educational attainment, self-reported scam prevention knowledge, and gender, as well as binary predictors representing online shopping and online banking activities. Logistic regression allows us to examine the associations between these characteristics and the odds of having experienced unauthorized account access while adjusting for other observed characteristics.
+
+Additionally, we include interaction terms between age group and educational attainment to investigate whether the association between age and unauthorized account access differs across education levels. We plan to account for survey weights in the analysis to improve population-level inference. The model will allow us to interpret results using odds ratios, confidence intervals, and p-values. Because the data are observational and cross-sectional, these associations will not be interpreted as causal effects.
+
+4.3 Model Assumptions
+
+Our logistic regression model relies on the following assumptions:
+
+1.  **Binary outcome:** The dependent variable has two categories: ever experienced unauthorized online account access (1) and never experienced it (0).
+
+2.  **Independence of observations:** Each observation represents an individual survey respondent. We will consider the survey design and weighting procedures when estimating statistical uncertainty.
+
+3.  **Appropriate functional form:** Categorical predictors will be represented using indicator variables, so we do not assume that the log-odds change linearly across numerical codes for age, education, or scam prevention knowledge.
+
+4.  **No severe multicollinearity:** The independent variables should not exhibit excessive multicollinearity, which could affect the stability of coefficient estimates.
+
+5.  **Sufficient sample size:** There should be enough observations and outcome events across predictor categories to estimate regression coefficients reliably, particularly for age-by-education interactions.
+
+6.  **No complete separation:** No predictor category or combination of categories should perfectly predict whether a respondent has experienced unauthorized account access.
+
+4.4 Model Assessment (how will you assess the assumptions and model performance?)
+
+1.  **Independence and survey design:** We will review Pew Research Center's sampling methodology and incorporate the available survey weights when estimating associations and statistical uncertainty.
+
+2.  **Functional form:** We will check that categorical variables are appropriately coded and that reference categories are clearly defined.
+
+3.  **Multicollinearity:** We will calculate variance inflation factors (VIFs), using appropriate generalized measures for categorical predictors, to identify potential multicollinearity, including that associated with interaction terms.
+
+4.  **Model fit:** We will examine residuals, influential observations, and evidence of sparse categories or separation. We will also compare models with and without the age-by-education interaction using an appropriate statistical test that accounts for the survey-weighted estimation approach.
+
+5.  **Statistical significance:** We will examine estimated coefficients, odds ratios, p-values, and 95% confidence intervals to determine which respondent characteristics are statistically associated with unauthorized account access.
+
+6.  **Model performance:** We will compare predicted probabilities with observed outcomes and evaluate classification performance using measures such as a confusion matrix and ROC-AUC. We will also examine calibration to assess how closely predicted probabilities correspond to observed outcome frequencies.
+
+\newpage
+
+#### Exploratory Data Analysis
+
+```{r,message=FALSE, warning=FALSE}
+
+
+
+library(readr)
+library(tidyverse)
+
+url_pew <- "https://raw.githubusercontent.com/yihanc09/IDS-702-Final-Project/refs/heads/main/data/ATP%20W168.csv"
+
+pew <- read_csv(url_pew, show_col_types = FALSE)
+
+cat("Rows:", nrow(pew), "\n")
+cat("Columns:", ncol(pew), "\n\n")
+
+pew %>%
+  dplyr::select(
+    OSCAM_TYPESELF2_a_W168,
+    F_AGECAT,
+    F_EDUCCAT,
+    OSCAM_KNOW_W168,
+    F_GENDER,
+    ONLTSK_a_W168,
+    ONLTSK_b_W168,
+    WEIGHT_W168
+  ) %>%
+  dplyr::glimpse(width = 70)
+
+
+```
+
+The dataset contains 9,397 survey responses from U.S. adults collected by Pew Research Center in April 2025, with 151 variables covering online activities, experiences with online scams and attacks, scam prevention knowledge, and demographic characteristics. Each observation represents an individual survey respondent. We first examined the structure and variable types using `glimpse()`.
+
+```{r,message=FALSE, warning=FALSE}
+
+library(dplyr)
+library(tidyr)
+library(knitr)
+
+table1_pew <- pew %>%
+  summarise(
+    `Total respondents` = n(),
+    `Respondents aged 18-29, n` =
+      sum(F_AGECAT == 1, na.rm = TRUE),
+    `Experienced unauthorized account access, n` =
+      sum(OSCAM_TYPESELF2_a_W168 %in% c(1, 2)),
+    `Never experienced unauthorized account access, n` =
+      sum(OSCAM_TYPESELF2_a_W168 == 3, na.rm = TRUE),
+    `Experienced unauthorized account access, %` =
+      round(
+        100 * sum(OSCAM_TYPESELF2_a_W168 %in% c(1, 2)) /
+          sum(OSCAM_TYPESELF2_a_W168 %in% c(1, 2, 3)),
+        1
+      )
+  ) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "Characteristic",
+    values_to = "Value"
+  )
+
+
+kable(
+  table1_pew,
+  caption = "Descriptive Statistics of Pew Research Center ATP Wave 168"
+)
+
+
+```
+
+```{r, fig.width=7, fig.height=5, out.width="70%",fig.align="center", warning=FALSE, message=FALSE}
+
+library(ggplot2)
+
+outcome_pew <- pew %>%
+  filter(OSCAM_TYPESELF2_a_W168 %in% c(1, 2, 3)) %>%
+  mutate(
+    Account_Access = if_else(
+      OSCAM_TYPESELF2_a_W168 %in% c(1, 2),
+      "Ever experienced",
+      "Never experienced"
+    )
+  ) %>%
+  count(Account_Access) %>%
+  mutate(
+    Percentage = 100 * n / sum(n),
+    Account_Access = factor(
+      Account_Access,
+      levels = c("Never experienced", "Ever experienced")
+    )
+  )
+
+ggplot(
+  outcome_pew,
+  aes(x = Account_Access, y = Percentage, fill = Account_Access)
+) +
+  geom_col(width = 0.6, show.legend = FALSE) +
+  geom_text(
+    aes(label = paste0(round(Percentage, 1), "%")),
+    vjust = -0.4,
+    size = 4
+  ) +
+  scale_y_continuous(
+    limits = c(0, 80),
+    expand = expansion(mult = c(0, 0))
+  ) +
+  labs(
+    title = "Unauthorized Online Account Access",
+    x = NULL,
+    y = "Percentage of valid responses (%)",
+    caption = "Source: Pew Research Center, ATP Wave 168 (2025). Unweighted."
+  ) +
+  theme_minimal(base_size = 12)
+```
+
+Figure 1 shows the distribution of self-reported unauthorized online account access experiences among respondents with valid answers. Approximately 28.6% reported having experienced unauthorized access to a personal online account at some point, while 71.4% reported never experiencing it. These unweighted descriptive results suggest that account compromise is a relevant concern among survey respondents, motivating further investigation of its associations with demographic characteristics and online behaviors.
+
+```{r, fig.width=7, fig.height=5, out.width="70%",fig.align="center", warning=FALSE, message=FALSE}
+
+age_access_pew <- pew %>%
+  filter(
+    F_AGECAT %in% 1:4,
+    OSCAM_TYPESELF2_a_W168 %in% 1:3
+  ) %>%
+  mutate(
+    Age_Group = factor(
+      F_AGECAT,
+      levels = 1:4,
+      labels = c("18-29", "30-49", "50-64", "65+")
+    ),
+    Account_Access = if_else(
+      OSCAM_TYPESELF2_a_W168 %in% c(1, 2),
+      "Ever experienced",
+      "Never experienced"
+    )
+  ) %>%
+  count(Age_Group, Account_Access) %>%
+  group_by(Age_Group) %>%
+  mutate(Percentage = 100 * n / sum(n)) %>%
+  ungroup()
+
+ggplot(
+  age_access_pew,
+  aes(x = Age_Group, y = Percentage, fill = Account_Access)
+) +
+  geom_col(width = 0.7) +
+  scale_y_continuous(
+    labels = scales::label_percent(scale = 1)
+  ) +
+  labs(
+    title = "Unauthorized Account Access by Age Group",
+    x = "Age group (years)",
+    y = "Percentage within age group",
+    fill = "Account access experience",
+    caption = "Source: Pew Research Center, ATP Wave 168 (2025). Unweighted."
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "bottom"
+  )
+
+
+```
+
+Figure 2 illustrates the distribution of self-reported unauthorized online account access across four age groups. Respondents aged 18–29 and 30–49 reported relatively higher proportions of previous unauthorized account access, while those aged 50–64 and 65 or older reported lower proportions. This descriptive pattern suggests a potential association between age and unauthorized account access. However, these differences are unweighted and do not account for other demographic characteristics or online behaviors.
+
+```{r, fig.width=7, fig.height=5, out.width="70%",fig.align="center", warning=FALSE, message=FALSE}
+
+age_education_pew <- pew %>%
+  filter(
+    F_AGECAT %in% 1:4,
+    F_EDUCCAT %in% 1:3,
+    OSCAM_TYPESELF2_a_W168 %in% 1:3
+  ) %>%
+  mutate(
+    Age_Group = factor(
+      F_AGECAT,
+      levels = 1:4,
+      labels = c("18-29", "30-49", "50-64", "65+")
+    ),
+    Education = factor(
+      F_EDUCCAT,
+      levels = 1:3,
+      labels = c(
+        "College graduate+",
+        "Some college",
+        "High school or less"
+      )
+    ),
+    Ever_Experienced =
+      OSCAM_TYPESELF2_a_W168 %in% c(1, 2)
+  ) %>%
+  group_by(Age_Group, Education) %>%
+  summarise(
+    N = n(),
+    Percentage = 100 * mean(Ever_Experienced),
+    .groups = "drop"
+  )
+
+ggplot(
+  age_education_pew,
+  aes(
+    x = Age_Group,
+    y = Percentage,
+    fill = Education
+  )
+) +
+  geom_col(
+    position = position_dodge(width = 0.8),
+    width = 0.7
+  ) +
+  scale_y_continuous(
+    labels = scales::label_percent(scale = 1)
+  ) +
+  labs(
+    title = "Unauthorized Account Access by Age and Education",
+    x = "Age group (years)",
+    y = "Ever experienced account compromise (%)",
+    fill = "Education",
+    caption = "Source: Pew Research Center, ATP Wave 168 (2025). Unweighted."
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "bottom"
+  )
+
+```
+
+Figure 3 illustrates the proportion of respondents who reported experiencing unauthorized online account access across age groups and educational attainment levels. Among adults aged 18–49, respondents with some college education or a high school education or less generally reported higher proportions of account compromise than college graduates. Across all three education groups, the proportion reporting unauthorized account access generally decreased in older age groups, although the patterns differed somewhat by educational attainment. These descriptive differences suggest that the association between age and account compromise may vary by education level, motivating the inclusion of an age-by-education interaction term in our proposed logistic regression model. However, no statistical interaction has been formally tested at this stage.
+
+## Team Charter
+
+1.  When will you meet as a team to work on the project components? Will these meetings be held in person or virtually?
+
+    We plan to meet once a week, preferably in person, but we are flexible and can meet virtually if needed.
+
+2.  What is your group policy on missing team meetings (e.g., how much advance notice should be provided)?
+
+    Team members should make an effort to attend all meetings, as meeting times will be deter- mined based on everyone’s availability. If someone must miss a meeting, they should provide at least one day’s notice.
+
+3.  How will your team communicate (email, Slack, text messages)? What is your policy on appropriate response time (within a certain number of hours? Nights/weekends?)?
+
+    Our primary form of communication will be WhatsApp, while Slack will mainly be used for file sharing. Team members are expected to respond within 12 hours. Communication during nights and weekends is welcome, depending on everyone’s availability to complete the work!
